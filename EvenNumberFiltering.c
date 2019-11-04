@@ -7,7 +7,7 @@ int main(int argc, char* argv[]) {
     while (x) {
         int digit = x %10;
         if (digit %2 == 1)
-            printf("%d", digit);
+            printf("%d ", digit);
         x /= 10;
     }
     return 0;
