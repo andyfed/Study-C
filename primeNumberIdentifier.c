@@ -1,3 +1,5 @@
+//Prime number  identifier
+
 #include <stdio.h>
 #include <stdbool.h>
 
