@@ -1,0 +1,230 @@
+/*
+* Book catalog.
+* CRUD, save/load file (binary data storage).
+* Additional features: 
+* A) delete from list boks published earlier than chosen year. 
+* B) Update year published by chosen book title. 
+* Realized with a doubly linked list.
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <conio.h>
+#include <string.h>
+
+const char FileName[] = "books.dat"; // data (list) storage file
+
+
+struct Inf {
+    char title[30];
+    char name[20];
+    int year;
+    struct Inf *prev; // previous element pointer
+    struct Inf *next; // next element pointer
+};
+
+struct Inf *head = NULL;
+struct Inf *tail = NULL;
+
+
+
+// Clear list/New list
+void Clear() {
+    struct Inf *p = head;
+    while (p != NULL) {
+        struct Inf *q = p;
+        p = p->next;
+        free(q);      // free dynamic memory
+    }
+    head = NULL;
+    tail = NULL;
+}
+
+// Read list
+void Print() {
+    struct Inf *p = head;
+    while (p != NULL) {
+        printf("Book title: %30s |", p->title);
+        printf("Book author: %20s |", p->name);
+        printf("Year published: %10d |\n", p->year);
+        p = p->next;
+    }
+}
+
+// Add entry
+void Add() {
+    struct Inf *p = (struct Inf *) malloc(sizeof(struct Inf)); // dynamic memory allocation
+    printf("Title: ");
+    scanf("%s", p->title);
+    printf("Author: ");
+    scanf("%s", p->name);
+    printf("Year: ");
+    scanf("%d", &p->year);
+    p->prev = NULL;
+    p->next = NULL;
+    if (head == NULL)    // for empty list
+        head = tail = p;
+    else {              // add in the end of list
+        tail->next = p;
+        p->prev = tail;
+        tail = p;
+    }
+}
+
+// Change year by the chosen title
+void Change() {
+    char title[30];
+    printf("Title: ");
+    scanf("%s", title);
+    struct Inf *p = head;
+    int found = 0;
+    while (p != NULL) {
+        if (!strcmp(p->title, title)) {
+            printf("Year: ");
+            scanf("%d", &p->year);
+            found = 1;
+            break;
+        }
+        p = p->next;
+    }
+    if (found == 0)
+        puts("\nBook not found!");
+    else
+        puts("\nYear successfully changed!");
+}
+
+
+void Delete() {
+    int year;
+    printf("Enter year: ");
+    scanf("%d", &year);
+    struct Inf *p = head;
+    int found = 0;
+    while (p != NULL) {
+        if (p->year < year) {
+            // element first && last
+            if (p->prev == NULL && p->next == NULL) {
+                free(p);
+                head = NULL;
+                tail = NULL;
+                break;
+            } else if (p->prev == NULL) {  // delete first element
+                struct Inf *q = p;
+                p = p->next;
+                free(q);
+                p->prev = NULL;
+                head = p;
+            } else if (p->next == NULL) {  // delete last element
+                struct Inf *q = p;
+                p = p->prev;
+                free(q);
+                p->next = NULL;
+                tail = p;
+            } else {                        // delete middle element
+                p->prev->next = p->next;
+                p->next->prev = p->prev;
+                struct Inf *q = p;
+                p = p->next;
+                free(q);                    // free dynamic memory
+            }
+            found++;
+        } else
+            p = p->next;
+    }
+    if (found == 0)
+        puts("\nBook not found!");
+    else
+        printf("\n %d books successfully deleted!", found);
+}
+
+// save list in file
+void Save() {
+    FILE *f;
+    f = fopen(FileName, "w");
+    struct Inf *p = head;
+    while (p != NULL) {
+        fprintf(f, "%s %s %d\n", p->title, p->name, p->year);
+        p = p->next;
+    }
+    fclose(f);
+    printf("List successfully saved in %s\n", FileName);
+}
+
+// load list from file
+void Load() {
+    Clear();
+    FILE *f;
+    f = fopen(FileName, "r");
+    while (!feof(f)) {
+        struct Inf *p = (struct Inf *) malloc(sizeof(struct Inf)); // dynamic memory allocation
+        fscanf(f, "%s", p->title);
+        if (feof(f))
+            break;
+        fscanf(f, "%s", p->name);
+        fscanf(f, "%d", &p->year);
+        p->prev = NULL;
+        p->next = NULL;
+        if (head == NULL) // for empty
+            head = tail = p;
+        else {
+            tail->next = p;
+            p->prev = tail;
+            tail = p;
+        }
+    }
+    fclose(f);
+    printf("The list loaded from file %s\n", FileName);
+}
+
+// Menu screen print
+void Menu() {
+    puts("\n- - - - - - - - - -\n");
+    puts("1 - New list");
+    puts("2 - Read list");
+    puts("3 - Add entry");
+    puts("4 - Find and update entry");
+    puts("5 - Delete entry");
+    puts("6 - Save list");
+    puts("7 - Load list");
+    puts("8 - Exit");
+    puts("\n- - - - - - - - - -\n");
+    puts("Enter command number: ");
+}
+
+void main() {
+    char c;
+
+    while (1) {
+        Menu();
+        c = getch();
+
+        switch(c) {
+            case '1': // Create list
+                Clear();
+                puts("\nList successfully created!");
+                break;
+            case '2': // Read list
+                puts("\nList:");
+                Print();
+                break;
+            case '3': // Add new entry
+                Add();
+                break;
+            case '4': // Find and update entry
+                Change();
+                break;
+            case '5': // Delete entry
+                Delete();
+                break;
+            case '6': // Save list
+                Save();
+                break;
+            case '7': // Load list
+                Load();
+                break;
+            case '8': // Exit
+                return;
+        }
+    }
+}
+
