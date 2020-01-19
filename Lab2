@@ -1,0 +1,51 @@
+/*
+* Where is information about 5 rooms in a hostel. Structure has data about: tenant surname, room number, faculty, room suare.
+* Print all data about rooms by chosen faculty and quantity of that rooms.
+*/
+
+#include <stdio.h>
+#include <conio.h>
+#include <string.h>
+
+#define N 5
+
+int main() {
+int i, k;
+float sum;
+char chosenFaculty[10];
+
+struct Room {
+    char surName[10];
+    int roomNumber;
+    char faculty[10];
+    float roomSquare;
+};
+
+//array of structs + Entering info about rooms
+struct Room hostel[N] = {{"Ivanov", 1, "Gryffindor", 10.01},
+    {"Petrov", 2, "Ravenclaw", 11.11},
+    {"Sobolev", 3, "Hufflepuff", 12.12},
+    {"Kuznetsov", 4, "FIT", 13.31},
+    {"Aleshin", 5, "FIT", 14.41}};
+
+int roomCounter = 0;
+
+//choose faculty for selection
+while(1) {
+    printf("\n Enter faculty for selection or type \"exit\": ");
+    printf("\n Gryffindor \n Ravenclaw \n Hufflepuff \n FIT \n");
+    scanf("%s", chosenFaculty);
+    if(!strcmp("exit", chosenFaculty)) break; //terminator
+
+    for(i = 0; i < N; i++) {
+        if(!strcmp(hostel[i].faculty, chosenFaculty)) {
+            roomCounter++;
+            printf("\nstudent %s, room number %d, square = %5.2f \n", hostel[i].surName, hostel[i].roomNumber, hostel[i].roomSquare);
+        }
+    }
+    printf("\nThere are %d rooms at this faculty.\n\n", roomCounter);
+    roomCounter = 0;
+}
+
+return 0;
+}
