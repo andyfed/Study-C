@@ -1,0 +1,139 @@
+/*
+* The program for ctatlog newspapers and magazines. Where are functions controls by 'menu':
+* CRUD (create, read, update, delete), show the cheapest.
+* Data stores in a binary file. The structure in this program has info about: publisher, title, price, circulation.
+* */
+
+#include <stdio.h>
+#include <conio.h>
+#include <string.h>
+
+// functions declaration
+void input(FILE *);
+void print(FILE *);
+void add(FILE *);
+void del(FILE *);
+
+// structure of periodical
+struct periodical {
+    char publisher[15];
+    char title[15];
+    float price;
+    int circulation;
+} t1;
+
+// Function creates new file
+void input(FILE *tf) {
+char ch;
+tf = fopen("pressInfo.txt", "wb");
+printf("\n Entring...\n");
+
+// fill the fields
+do {
+    printf("\n Publisher: ");
+    scanf("%s",t1.publisher);
+    printf("\n Title: ");
+    scanf("%s",t1.title);
+    printf(" Price: ");
+    scanf("%f",&t1.price);
+    printf(" Year circulation: ");
+    scanf("%d",&t1.circulation);
+    fwrite(&t1, sizeof(t1), 1, tf);
+    printf("\n Finish the entry? y/n ");
+    ch = getch();
+} while (ch != 'y');
+
+fclose(tf); // close the file
+}
+
+// Function reads file and show on the screen
+void print(FILE *tf) {
+int i;
+tf = fopen("pressInfo.txt","rb");
+i = 1;
+fread(&t1, sizeof(t1), 1, tf);
+while (!feof(tf)) {
+    printf("\n %1d. Publisher: %6s, Title: %8.13s Price: %4.2f, Year circulation: %2d", i, t1.publisher, t1.title, t1.price, t1.circulation);
+    fread(&t1, sizeof(t1), 1, tf);
+    i++;
+}
+
+getch();
+}
+
+// Function add new entry to the list of periodical
+void add(FILE *tf) {
+    char ch;
+    tf = fopen("pressInfo.txt","ab");
+    printf("\nEntry...\n");
+
+do {
+    printf("\nPublisher: ");
+    scanf("%s",t1.publisher);
+    printf("\nTitle: ");
+    scanf("%s",t1.title);
+    printf("\nPrice: ");
+    scanf("%f",&t1.price);
+    printf("\nYear circulation: ");
+    scanf("%d",&t1.circulation);
+    fwrite(&t1,sizeof(t1),1,tf);
+    printf(" Finish? y/n ");
+    ch = getch();
+} while (ch != 'y');
+
+fclose(tf);
+}
+
+
+// Function show the cheapest periodical
+void cheapest(FILE *tf) {
+char * a;
+float min = 500, s;
+int * i, b;
+
+tf = fopen("pressInfo.txt", "rb+");
+
+
+// read until end of file
+while (!feof(tf)){
+        fread(&t1, sizeof(t1), 1, tf);
+    if(t1.price < min){
+        min = t1.price;
+        a = t1.title;
+        s = t1.price;
+        b = t1.circulation;
+    }
+}
+
+printf("\nThe cheapest periodical is:");
+printf("\nTitle: %10s Price: %6.2f, Year circulation: %4d", a, s, b);
+fclose(tf);
+}
+
+int main() {
+char c;
+FILE *tf; // file pointer
+
+// Menu block
+while (1){
+    puts("\n- - - - - - - - - - - -");
+    puts("\nEnter number of new command: ");
+    puts("\n 1 - New file");
+    puts(" 2 - Read file");
+    puts(" 3 - Add to file");
+    puts(" 4 - Show the cheapest");
+    puts(" 0 - Exit");
+    puts("- - - - - - - - - - - -");
+
+    c = getch();
+
+    switch(c) {
+        case '1': input(tf); break;
+        case '2': print(tf); break;
+        case '3': add(tf); break;
+        case '4': cheapest(tf); break;
+        case '0': return 0;
+        default : puts(" Wrong number. Try again!\n");
+    }
+}
+}
